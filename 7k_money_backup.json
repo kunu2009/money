@@ -1,0 +1,156 @@
+[
+  {
+    "date": "2025-09-23",
+    "description": "Auva",
+    "amount": 500,
+    "type": "income",
+    "id": 1758655410194
+  },
+  {
+    "date": "2025-09-23",
+    "description": "Leftover from trip",
+    "amount": 20,
+    "type": "income",
+    "id": 1758655410218
+  },
+  {
+    "date": "2025-09-23",
+    "description": "College bag cash",
+    "amount": 250,
+    "type": "income",
+    "id": 1758655410221
+  },
+  {
+    "date": "2025-09-23",
+    "description": "Coin bag cash",
+    "amount": 20,
+    "type": "income",
+    "id": 1758655410222
+  },
+  {
+    "date": "2025-09-23",
+    "description": "Wallet cash",
+    "amount": 1170,
+    "type": "income",
+    "id": 1758655410224
+  },
+  {
+    "date": "2025-09-03",
+    "description": "Wallet cash",
+    "amount": 200,
+    "type": "income",
+    "id": 1758655410225
+  },
+  {
+    "date": "2025-09-05",
+    "description": "Cash",
+    "amount": 40,
+    "type": "income",
+    "id": 1758655410227
+  },
+  {
+    "date": "2025-09-13",
+    "description": "Cash",
+    "amount": 40,
+    "type": "income",
+    "id": 1758655410228
+  },
+  {
+    "date": "2025-09-23",
+    "description": "Online income",
+    "amount": 92,
+    "type": "income",
+    "id": 1758655410230
+  },
+  {
+    "date": "2025-09-23",
+    "description": "Auva",
+    "amount": 500,
+    "type": "income",
+    "id": 1758655410231
+  },
+  {
+    "date": "2025-09-03",
+    "description": "Chicken rice",
+    "amount": 150,
+    "type": "expense",
+    "id": 1758655410233
+  },
+  {
+    "date": "2025-09-23",
+    "description": "Online train ticket",
+    "amount": 40,
+    "type": "expense",
+    "id": 1758655410241
+  },
+  {
+    "date": "2025-09-23",
+    "description": "Atta online",
+    "amount": 2,
+    "type": "expense",
+    "id": 1758655410244
+  },
+  {
+    "id": 1758655410246,
+    "date": "2025-09-23",
+    "description": "mom slippers",
+    "type": "expense",
+    "amount": 500
+  },
+  {
+    "date": "2025-08-30",
+    "description": "Campa cola",
+    "amount": 20,
+    "type": "expense",
+    "id": 1758655410247
+  },
+  {
+    "date": "2025-08-30",
+    "description": "Chai at Juhu Beach",
+    "amount": 20,
+    "type": "expense",
+    "id": 1758655410249
+  },
+  {
+    "date": "2025-08-30",
+    "description": "Chai at Juhu Beach for Pratham",
+    "amount": 20,
+    "type": "expense",
+    "id": 1758655410251
+  },
+  {
+    "date": "2025-08-30",
+    "description": "Orange juice",
+    "amount": 5,
+    "type": "expense",
+    "id": 1758655410253
+  },
+  {
+    "date": "2025-08-31",
+    "description": "Train ticket Charni Road to Dadar",
+    "amount": 5,
+    "type": "expense",
+    "id": 1758655410255
+  },
+  {
+    "date": "2025-08-31",
+    "description": "Train ticket Dadar to Churchgate",
+    "amount": 10,
+    "type": "expense",
+    "id": 1758655410256
+  },
+  {
+    "date": "2025-08-31",
+    "description": "Mom's contribution",
+    "amount": 100,
+    "type": "income",
+    "id": 1758655410258
+  },
+  {
+    "date": "2025-09-04",
+    "description": "Donation and vadapav",
+    "amount": 40,
+    "type": "expense",
+    "id": 1758655410261
+  }
+]
