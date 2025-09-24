@@ -2,9 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#264653">
+    <meta name="background-color" content="#264653">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="7K Money">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="7K Money">
+    <meta name="msapplication-TileColor" content="#264653">
+    <meta name="description" content="A powerful personal finance tracker with AI-powered transaction processing">
     <title>7K Money - Personal Finance Tracker</title>
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiN0sgTW9uZXkiLCJzaG9ydF9uYW1lIjoiN0tNb25leSIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZmZmZmZmIiwidGhlbWVfY29sb3IiOiIjMjY0NjUzIn0=">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iNDAiIGZpbGw9IiMyNjQ2NTMiLz4KPHR5cGUgeD0iNDgiIHk9IjExNiIgZmlsbD0iRkZGRkZGIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI2NHB4IiBmb250LXdlaWdodD0iYm9sZCI+N0s8L3R5cGU+CjxzdmcgeD0iNDgiIHk9IjQ4IiB3aWR0aD0iNzIiIGhlaWdodD0iNzIiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0Y0QTI2MSI+CjxwPgo8cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnpNMTEuNSA5SDUxM3YyaC0uNXYySDExVjloMW0xLjUgMGgxLjV2MmgtMS41Vjl6bTMtMmgxdjRoLTF6TTEzIDE2YzAgLjU1LjQ1IDEgMSAxcy0uNDUgMS0xLS0uNDUtMS0xLTFjLS41NSAwLTEgLjQ1LTEgMXoiLz4KPC9zdmc+Cjwvc3ZnPg==">
     <style>
         :root {
             --gable-green: #264653;
@@ -52,12 +62,63 @@
             min-height: 100vh;
             color: var(--text-primary);
             transition: all 0.3s ease;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Allow text selection in inputs and content areas */
+        input, textarea, .ai-response, .parsed-results {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        /* PWA specific styles */
+        .pwa-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--chathams-blue);
+            color: white;
+            padding: 15px;
+            display: none;
+            z-index: 1001;
+            text-align: center;
+        }
+
+        .pwa-banner.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .install-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-left: 10px;
+            font-size: 14px;
+            cursor: pointer;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 15px;
+            padding-bottom: 80px; /* Space for potential install banner */
         }
 
         header {
@@ -226,6 +287,10 @@
             transition: border-color 0.3s;
             background: var(--bg-card);
             color: var(--text-primary);
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            min-height: 44px; /* iOS minimum touch target */
         }
 
         input:focus, select:focus, textarea:focus {
@@ -249,6 +314,9 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            min-height: 44px; /* iOS minimum touch target */
         }
 
         button:hover {
@@ -577,15 +645,15 @@
             <div class="dashboard-grid">
                 <div class="stat-card income">
                     <div class="stat-label">Total Income</div>
-                    <div class="stat-value" id="total-income">$0</div>
+                    <div class="stat-value" id="total-income">₹0</div>
                 </div>
                 <div class="stat-card expense">
                     <div class="stat-label">Total Expenses</div>
-                    <div class="stat-value" id="total-expenses">$0</div>
+                    <div class="stat-value" id="total-expenses">₹0</div>
                 </div>
                 <div class="stat-card balance">
                     <div class="stat-label">Current Balance</div>
-                    <div class="stat-value" id="current-balance">$0</div>
+                    <div class="stat-value" id="current-balance">₹0</div>
                 </div>
             </div>
 
@@ -745,6 +813,13 @@
         </div>
     </div>
 
+    <!-- PWA Install Banner -->
+    <div id="pwa-banner" class="pwa-banner">
+        <span>📱 Install 7K Money as an app for better experience!</span>
+        <button class="install-btn" onclick="installPWA()">Install</button>
+        <button class="install-btn" onclick="dismissInstallBanner()" style="margin-left: 5px;">Later</button>
+    </div>
+
     <!-- Edit Modal -->
     <div id="edit-modal" class="modal">
         <div class="modal-content">
@@ -783,9 +858,87 @@
         let transactions = JSON.parse(localStorage.getItem('7k_transactions')) || [];
         let sortField = 'date';
         let sortDirection = 'desc';
+        let deferredPrompt;
+        let isInstalled = false;
+
+        // Check if app is installed
+        function checkIfInstalled() {
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                isInstalled = true;
+                document.body.classList.add('installed');
+            }
+            
+            if (navigator.standalone === true) {
+                isInstalled = true;
+                document.body.classList.add('installed');
+            }
+        }
+
+        // PWA Install functionality
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('beforeinstallprompt fired');
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            if (!isInstalled && !localStorage.getItem('7k_install_dismissed')) {
+                setTimeout(() => {
+                    showInstallBanner();
+                }, 3000); // Show after 3 seconds
+            }
+        });
+
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('App installed');
+            isInstalled = true;
+            hideInstallBanner();
+            localStorage.setItem('7k_install_dismissed', 'true');
+            
+            // Show success message
+            setTimeout(() => {
+                alert('🎉 7K Money has been installed successfully! You can now access it from your home screen.');
+            }, 1000);
+        });
+
+        function showInstallBanner() {
+            const banner = document.getElementById('pwa-banner');
+            if (banner && deferredPrompt && !isInstalled) {
+                banner.classList.add('show');
+            }
+        }
+
+        function hideInstallBanner() {
+            const banner = document.getElementById('pwa-banner');
+            if (banner) {
+                banner.classList.remove('show');
+            }
+        }
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    } else {
+                        console.log('User dismissed the install prompt');
+                        localStorage.setItem('7k_install_dismissed', 'true');
+                    }
+                    deferredPrompt = null;
+                    hideInstallBanner();
+                });
+            }
+        }
+
+        function dismissInstallBanner() {
+            hideInstallBanner();
+            localStorage.setItem('7k_install_dismissed', 'true');
+        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            // Check if app is installed
+            checkIfInstalled();
+            
             // Set today's date as default
             document.getElementById('date').valueAsDate = new Date();
             
@@ -806,7 +959,20 @@
             // Setup form handlers
             document.getElementById('single-transaction-form').addEventListener('submit', handleSingleAdd);
             document.getElementById('edit-form').addEventListener('submit', handleEdit);
+            
+            // Handle URL hash for deep linking
+            handleUrlHash();
         });
+
+        // Handle deep linking
+        function handleUrlHash() {
+            const hash = window.location.hash.replace('#', '');
+            if (hash && document.getElementById(hash)) {
+                switchTab(hash);
+            }
+        }
+
+        window.addEventListener('hashchange', handleUrlHash);
 
         // Theme Management
         function toggleTheme() {
@@ -833,11 +999,23 @@
 
         // Tab Management
         function switchTab(tabName) {
+            // Update URL hash for deep linking
+            if (history.pushState) {
+                history.pushState(null, null, '#' + tabName);
+            }
+            
             // Update buttons
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            event.target.classList.add('active');
+            
+            // Find the button that corresponds to this tab
+            const targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => 
+                btn.getAttribute('onclick').includes(tabName)
+            );
+            if (targetBtn) {
+                targetBtn.classList.add('active');
+            }
             
             // Update content
             document.querySelectorAll('.tab-content').forEach(content => {
@@ -1454,21 +1632,32 @@ ${unformattedLog}
             }
         }
 
-        // Service Worker for PWA
+        // Enhanced Service Worker for PWA
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('data:text/javascript,' + encodeURIComponent(`
-                self.addEventListener('install', e => {
-                    self.skipWaiting();
-                });
-                
-                self.addEventListener('activate', e => {
-                    e.waitUntil(clients.claim());
-                });
-                
-                self.addEventListener('fetch', e => {
-                    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-                });
-            `));
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed') {
+                                    if (navigator.serviceWorker.controller) {
+                                        // New update available
+                                        if (confirm('A new version is available! Would you like to refresh?')) {
+                                            window.location.reload();
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
         }
     </script>
 </body>

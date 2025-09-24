@@ -1,0 +1,103 @@
+﻿{
+  "name": "7K Money - Personal Finance Tracker",
+  "short_name": "7K Money",
+  "description": "A powerful personal finance tracker with AI-powered transaction processing",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#264653",
+  "theme_color": "#264653",
+  "categories": ["finance", "productivity", "business"],
+  "lang": "en",
+  "icons": [
+    {
+      "src": "./logo/logo-for-7kmomey-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./logo/logo-for-7kmomey-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./logo/logo-for-7kmomey-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./logo/logo-for-7kmomey-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./logo/logo-for-7kmomey-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./logo/logo-for-7kmomey-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./logo/logo-for-7kmomey-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./logo/logo-for-7kmomey-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add Transaction",
+      "short_name": "Add",
+      "description": "Quickly add a new transaction",
+      "url": "./index.html#single-add",
+      "icons": [
+        {
+          "src": "./logo/logo-for-7kmomey-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "View Dashboard",
+      "short_name": "Dashboard", 
+      "description": "View your financial overview",
+      "url": "./index.html#dashboard",
+      "icons": [
+        {
+          "src": "./logo/logo-for-7kmomey-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "AI Mass Add",
+      "short_name": "AI Add",
+      "description": "Use AI to process unformatted finance logs",
+      "url": "./index.html#mass-add",
+      "icons": [
+        {
+          "src": "./logo/logo-for-7kmomey-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
