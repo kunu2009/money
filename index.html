@@ -24,15 +24,36 @@
             --sandy-brown: #F4A261;
             --pale-dogwood: #E9C46A;
             
+            /* FontAwesome variables */
+            --fa-style-family-brands: "Font Awesome 6 Brands";
+            --fa-font-brands: normal 400 1em/1 "Font Awesome 6 Brands";
+            --fa-font-regular: normal 400 1em/1 "Font Awesome 6 Free";
+            --fa-style-family-classic: "Font Awesome 6 Free";
+            --fa-font-solid: normal 900 1em/1 "Font Awesome 6 Free";
+            
+            /* Enhanced color palette */
+            --primary-color: #4A90E2;
+            --secondary-color: #7B68EE;
+            --accent-color: #FF6B6B;
+            --success-color: #4CAF50;
+            --warning-color: #FFA726;
+            --dark-bg: #1a1a2e;
+            --sidebar-width: 100px;
+            
+            /* Enhanced shadows */
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 20px rgba(0,0,0,0.1);
+            
             /* Light theme */
             --bg-primary: #ffffff;
             --bg-secondary: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             --bg-card: #ffffff;
-            --text-primary: #264653;
+            --text-primary: #333333;
             --text-secondary: #666666;
-            --border-color: #D5D5D5;
+            --border-color: #e0e0e0;
             --hover-bg: #f9f9f9;
-            --shadow: 0 2px 10px rgba(0,0,0,0.08);
+            --shadow: var(--shadow-md);
         }
 
         [data-theme="dark"] {
@@ -57,7 +78,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: var(--bg-secondary);
             min-height: 100vh;
             color: var(--text-primary);
@@ -69,6 +90,10 @@
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            height: 100%;
         }
 
         /* Allow text selection in inputs and content areas */
@@ -115,10 +140,12 @@
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: calc(100vw - 115px); /* Full width minus wider sidebar space */
+            width: 100%;
+            margin: 0;
             padding: 15px;
             padding-bottom: 80px; /* Space for potential install banner */
+            box-sizing: border-box;
         }
 
         header {
@@ -257,8 +284,140 @@
             border-left-color: var(--calypso);
         }
 
-        .stat-card.balance {
-            border-left-color: var(--sandy-brown);
+        .stat-card.lended {
+            border-left-color: #8e44ad;
+        }
+
+        .stat-card.borrowed {
+            border-left-color: #f39c12;
+        }
+
+        .stat-card.lending-balance {
+            border-left-color: #16a085;
+        }
+
+        /* Right Sidebar Styles */
+        .right-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--bg-card);
+            border-left: 2px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            padding: 20px 0;
+        }
+
+        .sidebar-items {
+            display: flex;
+            flex-direction: column;
+            gap: 4px; /* Much smaller gap between icons */
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            justify-content: center; /* Center items instead of space-between */
+            padding: 10px 0; /* Reduced padding */
+        }
+
+        .sidebar-item {
+            width: 60px; /* Larger icon containers */
+            height: 60px;
+            background: var(--hover-bg);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sidebar-item:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            transform: translateX(-5px) scale(1.1);
+            box-shadow: var(--shadow-md);
+        }
+
+        .sidebar-item:hover .sidebar-icon {
+            transform: scale(1.2);
+            color: white;
+        }
+
+        .sidebar-item.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-md);
+        }
+
+        .sidebar-item.active .sidebar-icon {
+            color: white;
+        }
+
+        .sidebar-icon {
+            font-size: 24px; /* Larger icons */
+            transition: all 0.3s ease;
+            color: var(--text-primary);
+        }
+
+        .theme-toggle-sidebar:hover {
+            background: var(--warning-color) !important;
+            border-color: var(--warning-color) !important;
+        }
+
+        /* Tooltip for sidebar items */
+        .sidebar-item::before {
+            content: attr(title);
+            position: absolute;
+            right: 70px; /* Adjusted for wider sidebar */
+            background: var(--dark-bg);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            box-shadow: var(--shadow-md);
+        }
+
+        .sidebar-item:hover::before {
+            opacity: 1;
+            transform: translateX(-5px);
+        }
+
+        /* Show tooltip on touch devices */
+        .sidebar-item:active::before {
+            opacity: 1;
+            transform: translateX(-5px);
+        }
+
+        /* Adjust container for wider sidebar */
+        .container {
+            margin-right: 95px; /* Increased margin for 80px sidebar + padding */
+            max-width: 1200px;
+            margin-left: auto;
+            padding: 15px;
+            padding-bottom: 80px; /* Space for potential install banner */
+        }
+
+        /* Lending transactions styles */
+        .lended-row {
+            background: rgba(142, 68, 173, 0.1);
+        }
+
+        .borrowed-row {
+            background: rgba(243, 156, 18, 0.1);
         }
 
         .stat-value {
@@ -524,100 +683,410 @@
 
         @media (max-width: 768px) {
             .container {
-                padding: 10px;
+                max-width: calc(100vw - 85px); /* Full width minus wider mobile sidebar space */
+                padding: 8px;
             }
             
-            h1 {
-                font-size: 1.5rem;
+            /* Optimize sidebar for mobile */
+            .right-sidebar {
+                width: 75px; /* Wider on mobile too */
+                padding: 10px 0;
+                border-left: 1px solid var(--border-color);
             }
             
+            .sidebar-items {
+                gap: 3px; /* Very tight spacing on mobile */
+                padding: 8px 0;
+                justify-content: center;
+            }
+            
+            .sidebar-item {
+                width: 50px; /* Good size for mobile */
+                height: 50px;
+                min-width: 44px;
+                min-height: 44px;
+                border-radius: 10px;
+            }
+            
+            .sidebar-item:hover {
+                transform: translateX(-3px) scale(1.05);
+            }
+            
+            .sidebar-icon {
+                font-size: 20px; /* Good size for mobile */
+            }
+            
+            .sidebar-item::before {
+                right: 60px; /* Adjusted for mobile sidebar width */
+                font-size: 11px;
+                padding: 4px 8px;
+                border-radius: 4px;
+            }
+            
+            /* Mobile-optimized header */
             header {
                 flex-direction: column;
                 text-align: center;
+                padding: 15px;
+                margin-bottom: 15px;
             }
             
             .header-controls {
                 width: 100%;
                 justify-content: center;
-                margin-top: 15px;
+                margin-top: 10px;
             }
             
+            h1 {
+                font-size: 1.4rem;
+                margin-bottom: 5px;
+            }
+            
+            /* Mobile-optimized tabs */
             .tabs {
                 justify-content: flex-start;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding: 5px 0;
+                margin-bottom: 15px;
             }
             
             .tab-btn {
                 font-size: 12px;
-                padding: 8px 12px;
+                padding: 10px 14px;
+                white-space: nowrap;
+                flex-shrink: 0;
             }
             
+            /* Mobile dashboard grid */
             .dashboard-grid {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-            
-            .card {
-                padding: 15px;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
             }
             
             .stat-card {
-                padding: 15px;
+                padding: 12px;
+                text-align: center;
             }
             
-            .transaction-table {
-                font-size: 14px;
+            .stat-value {
+                font-size: 1.3rem;
             }
             
-            th, td {
-                padding: 8px 4px;
+            /* Mobile cards */
+            .card {
+                padding: 12px;
+                margin-bottom: 15px;
             }
             
-            .actions {
-                flex-direction: column;
-                gap: 5px;
-            }
-            
-            .btn-small {
-                width: 100%;
-                padding: 8px;
-                font-size: 12px;
-            }
-            
-            .modal-content {
-                padding: 20px;
-                width: 95%;
+            /* Mobile forms */
+            .form-group {
+                margin-bottom: 15px;
             }
             
             input, select, textarea, button {
                 font-size: 16px; /* Prevents zoom on iOS */
+                padding: 12px;
+                border-radius: 6px;
+                min-height: 44px;
+            }
+            
+            button {
+                padding: 12px 20px;
+                font-weight: 500;
+            }
+            
+            /* Mobile tables */
+            .transaction-table {
+                font-size: 13px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            table {
+                min-width: 500px;
+            }
+            
+            th, td {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+            
+            .actions {
+                flex-direction: column;
+                gap: 4px;
+                min-width: 80px;
+            }
+            
+            .btn-small {
+                width: 100%;
+                padding: 6px 8px;
+                font-size: 11px;
+            }
+            
+            /* Mobile modal */
+            .modal-content {
+                padding: 15px;
+                width: 95%;
+                max-width: 400px;
+                margin: 20px auto;
+            }
+            
+            /* Mobile AI sections */
+            .ai-process-section {
+                padding: 15px;
+                margin-top: 15px;
+            }
+            
+            textarea {
+                min-height: 120px;
+                font-size: 14px;
+            }
+            
+            .help-text {
+                font-size: 12px;
+                line-height: 1.4;
             }
         }
 
         @media (max-width: 480px) {
             .container {
+                max-width: calc(100vw - 70px); /* Full width minus compact sidebar space */
                 padding: 5px;
             }
             
-            .card {
-                padding: 10px;
+            /* Extra compact sidebar for small screens */
+            .right-sidebar {
+                width: 65px;
+                padding: 8px 0;
             }
             
+            .sidebar-items {
+                gap: 2px; /* Minimal spacing */
+                padding: 6px 0;
+                justify-content: center;
+            }
+            
+            .sidebar-item {
+                width: 45px;
+                height: 45px;
+                min-width: 44px;
+                min-height: 44px;
+                border-radius: 8px;
+            }
+            
+            .sidebar-item:hover {
+                transform: translateX(-2px) scale(1.03);
+            }
+            
+            .sidebar-icon {
+                font-size: 18px;
+            }
+            
+            .sidebar-item::before {
+                right: 50px;
+                font-size: 10px;
+                padding: 3px 6px;
+                border-radius: 3px;
+            }
+            
+            /* Extra small screen optimizations */
             h1 {
-                font-size: 1.25rem;
+                font-size: 1.2rem;
             }
             
             .stat-value {
-                font-size: 1.5rem;
+                font-size: 1.1rem;
             }
             
             .tab-btn {
                 font-size: 11px;
-                padding: 6px 8px;
+                padding: 8px 10px;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+            
+            .card {
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+            
+            .stat-card {
+                padding: 10px;
+            }
+            
+            input, select, textarea, button {
+                padding: 10px;
+                font-size: 15px;
+            }
+            
+            th, td {
+                padding: 6px 4px;
+                font-size: 11px;
+            }
+            
+            .btn-small {
+                padding: 5px 6px;
+                font-size: 10px;
+            }
+            
+            .modal-content {
+                padding: 12px;
+                width: 98%;
+            }
+            
+            .ai-process-section {
+                padding: 10px;
+            }
+            
+            textarea {
+                min-height: 100px;
+                font-size: 13px;
+            }
+        }
+
+        /* Landscape phone optimization */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .dashboard-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .right-sidebar {
+                width: 70px;
+            }
+            
+            .container {
+                max-width: calc(100vw - 80px); /* Full width minus landscape sidebar space */
+            }
+        }
+
+        /* Very small screens (iPhone SE, etc.) */
+        @media (max-width: 375px) {
+            .container {
+                max-width: calc(100vw - 65px); /* Full width minus tiny sidebar space */
+                padding: 3px;
+            }
+            
+            .right-sidebar {
+                width: 60px;
+            }
+            
+            .sidebar-item {
+                width: 40px;
+                height: 40px;
+                min-width: 40px;
+                min-height: 40px;
+            }
+            
+            .sidebar-icon {
+                font-size: 16px;
+            }
+            
+            h1 {
+                font-size: 1.1rem;
+            }
+            
+        /* Enhanced mobile touch support */
+        @media (hover: none) and (pointer: coarse) {
+            .sidebar-item:hover {
+                transform: none;
+            }
+            
+            .sidebar-item:active {
+                transform: translateX(-3px) scale(1.05);
+                background: var(--primary-color);
+            }
+            
+            .sidebar-item:active .sidebar-icon {
+                color: white;
+            }
+            
+            .tab-btn:hover {
+                transform: none;
+            }
+            
+            .tab-btn:active {
+                transform: translateY(-1px);
+                box-shadow: var(--shadow-md);
+            }
+            
+            button:hover {
+                transform: none;
+            }
+            
+            button:active {
+                transform: translateY(-1px);
+                box-shadow: var(--shadow-sm);
+            }
+        }
+
+        /* iOS Safari specific fixes */
+        @supports (-webkit-touch-callout: none) {
+            .container {
+                padding-bottom: env(safe-area-inset-bottom, 20px);
+            }
+            
+            .right-sidebar {
+                padding-bottom: env(safe-area-inset-bottom, 20px);
+            }
+            
+            input, select, textarea {
+                -webkit-appearance: none;
+                appearance: none;
+                border-radius: 6px;
+            }
+        }
+
+        /* Android Chrome specific optimizations */
+        @media screen and (-webkit-min-device-pixel-ratio: 2) {
+            .sidebar-item {
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            .tab-btn {
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            button {
+                -webkit-tap-highlight-color: transparent;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Right-hand Icon Sidebar -->
+    <div class="right-sidebar">
+        <div class="sidebar-items">
+            <div class="sidebar-item" onclick="switchTab('dashboard')" title="Dashboard">
+                <span class="sidebar-icon">📊</span>
+            </div>
+            <div class="sidebar-item" onclick="switchTab('single-add')" title="Add Transaction">
+                <span class="sidebar-icon">➕</span>
+            </div>
+            <div class="sidebar-item" onclick="switchTab('mass-add')" title="Mass Add">
+                <span class="sidebar-icon">📝</span>
+            </div>
+            <div class="sidebar-item" onclick="switchTab('transactions')" title="View Transactions">
+                <span class="sidebar-icon">📋</span>
+            </div>
+            <div class="sidebar-item" onclick="showLendingManager()" title="Lending Manager">
+                <span class="sidebar-icon">💰</span>
+            </div>
+            <div class="sidebar-item" onclick="switchTab('ai-assistant')" title="AI Assistant">
+                <span class="sidebar-icon">🤖</span>
+            </div>
+            <div class="sidebar-item" onclick="switchTab('settings')" title="Settings">
+                <span class="sidebar-icon">⚙️</span>
+            </div>
+            <div class="sidebar-item theme-toggle-sidebar" onclick="toggleTheme()" title="Toggle Theme">
+                <span class="sidebar-icon" id="sidebar-theme-icon">🌙</span>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <header>
             <div class="header-content">
@@ -651,9 +1120,21 @@
                     <div class="stat-label">Total Expenses</div>
                     <div class="stat-value" id="total-expenses">₹0</div>
                 </div>
+                <div class="stat-card lended">
+                    <div class="stat-label">Money Lended</div>
+                    <div class="stat-value" id="total-lended">₹0</div>
+                </div>
+                <div class="stat-card borrowed">
+                    <div class="stat-label">Money Borrowed</div>
+                    <div class="stat-value" id="total-borrowed">₹0</div>
+                </div>
                 <div class="stat-card balance">
-                    <div class="stat-label">Current Balance</div>
+                    <div class="stat-label">Net Balance</div>
                     <div class="stat-value" id="current-balance">₹0</div>
+                </div>
+                <div class="stat-card lending-balance">
+                    <div class="stat-label">Lending Balance</div>
+                    <div class="stat-value" id="lending-balance">₹0</div>
                 </div>
             </div>
 
@@ -686,6 +1167,8 @@
                         <select id="category" required>
                             <option value="expense">Expense</option>
                             <option value="income">Income</option>
+                            <option value="lended">Lended (Money Given)</option>
+                            <option value="borrowed">Borrowed (Money Received)</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -791,6 +1274,52 @@
             </div>
         </div>
 
+        <!-- Lending Manager Tab -->
+        <div id="lending-manager" class="tab-content">
+            <div class="card">
+                <h2>💰 Lending Manager</h2>
+                <p class="help-text">Track money you've lent to others and borrowed from them</p>
+                
+                <div class="dashboard-grid" style="margin-bottom: 30px;">
+                    <div class="stat-card lended">
+                        <div class="stat-label">Total Lended</div>
+                        <div class="stat-value" id="lending-total-lended">₹0</div>
+                    </div>
+                    <div class="stat-card borrowed">
+                        <div class="stat-label">Total Borrowed</div>
+                        <div class="stat-value" id="lending-total-borrowed">₹0</div>
+                    </div>
+                    <div class="stat-card lending-balance">
+                        <div class="stat-label">Net Lending</div>
+                        <div class="stat-value" id="lending-net-balance">₹0</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <h3>Active Lending Relationships</h3>
+                    <div id="lending-relationships"></div>
+                </div>
+
+                <div class="form-group">
+                    <h3>Recent Lending Transactions</h3>
+                    <div class="transaction-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Person/Description</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lending-transactions-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Settings Tab -->
         <div id="settings" class="tab-content">
             <div class="card">
@@ -839,6 +1368,8 @@
                     <select id="edit-category" required>
                         <option value="expense">Expense</option>
                         <option value="income">Income</option>
+                        <option value="lended">Lended (Money Given)</option>
+                        <option value="borrowed">Borrowed (Money Received)</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -986,13 +1517,16 @@
             localStorage.setItem('7k_theme', theme);
             
             const themeIcon = document.getElementById('theme-icon');
+            const sidebarThemeIcon = document.getElementById('sidebar-theme-icon');
             const themeBtn = document.querySelector('.theme-toggle');
             
             if (theme === 'dark') {
                 themeIcon.textContent = '☀️';
+                sidebarThemeIcon.textContent = '☀️';
                 themeBtn.innerHTML = '<span id="theme-icon">☀️</span> Light';
             } else {
                 themeIcon.textContent = '🌙';
+                sidebarThemeIcon.textContent = '🌙';
                 themeBtn.innerHTML = '<span id="theme-icon">🌙</span> Dark';
             }
         }
@@ -1004,7 +1538,7 @@
                 history.pushState(null, null, '#' + tabName);
             }
             
-            // Update buttons
+            // Update tab buttons
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
@@ -1015,6 +1549,20 @@
             );
             if (targetBtn) {
                 targetBtn.classList.add('active');
+            }
+            
+            // Update sidebar active states
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Find matching sidebar item
+            const sidebarItem = Array.from(document.querySelectorAll('.sidebar-item')).find(item => {
+                const onclick = item.getAttribute('onclick');
+                return onclick && onclick.includes(tabName);
+            });
+            if (sidebarItem) {
+                sidebarItem.classList.add('active');
             }
             
             // Update content
@@ -1028,6 +1576,8 @@
                 updateDashboard();
             } else if (tabName === 'transactions') {
                 displayTransactions();
+            } else if (tabName === 'lending-manager') {
+                updateDashboard(); // This will also update lending data
             }
         }
 
@@ -1087,7 +1637,7 @@ Return ONLY a JSON array of transactions in this exact format:
     "date": "YYYY-MM-DD",
     "description": "description",
     "amount": number,
-    "type": "income" or "expense"
+    "type": "income" or "expense" or "lended" or "borrowed"
   }
 ]
 
@@ -1095,9 +1645,14 @@ Rules:
 1. Use today's date (${new Date().toISOString().split('T')[0]}) if no specific date is mentioned
 2. If relative dates like "yesterday", "last week" are mentioned, calculate the actual date
 3. Extract amounts as positive numbers only
-4. Determine if it's "income" or "expense" based on context
+4. Determine transaction type based on context:
+   - "income": money received as salary, payment, etc.
+   - "expense": money spent on purchases, bills, etc.
+   - "lended": money given to someone (loan given)
+   - "borrowed": money received from someone (loan taken)
 5. Keep descriptions brief but descriptive
-6. Return ONLY the JSON array, no explanations
+6. For lending transactions, include person's name in description if mentioned
+7. Return ONLY the JSON array, no explanations
 
 Finance Log:
 ${unformattedLog}
@@ -1277,7 +1832,19 @@ ${unformattedLog}
                     
                     // Determine type based on keywords
                     const incomeKeywords = ['salary', 'income', 'received', 'earned', 'payment', 'refund'];
-                    const type = incomeKeywords.some(k => description.toLowerCase().includes(k)) ? 'income' : 'expense';
+                    const lendedKeywords = ['lent', 'gave', 'lend', 'loan given'];
+                    const borrowedKeywords = ['borrowed', 'took', 'loan', 'advance'];
+                    
+                    let type = 'expense'; // default
+                    const desc = description.toLowerCase();
+                    
+                    if (lendedKeywords.some(k => desc.includes(k))) {
+                        type = 'lended';
+                    } else if (borrowedKeywords.some(k => desc.includes(k))) {
+                        type = 'borrowed';
+                    } else if (incomeKeywords.some(k => desc.includes(k))) {
+                        type = 'income';
+                    }
                     
                     return { date, description, amount, type };
                 }
@@ -1356,19 +1923,43 @@ ${unformattedLog}
         function updateDashboard() {
             const income = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
             const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-            const balance = income - expenses;
+            const lended = transactions.filter(t => t.type === 'lended').reduce((sum, t) => sum + t.amount, 0);
+            const borrowed = transactions.filter(t => t.type === 'borrowed').reduce((sum, t) => sum + t.amount, 0);
+            
+            // Net balance: income + borrowed - expenses - lended
+            const balance = income + borrowed - expenses - lended;
+            // Lending balance: money we expect to get back (lended - borrowed)
+            const lendingBalance = lended - borrowed;
             
             document.getElementById('total-income').textContent = `₹${income.toFixed(2)}`;
             document.getElementById('total-expenses').textContent = `₹${expenses.toFixed(2)}`;
+            document.getElementById('total-lended').textContent = `₹${lended.toFixed(2)}`;
+            document.getElementById('total-borrowed').textContent = `₹${borrowed.toFixed(2)}`;
             document.getElementById('current-balance').textContent = `₹${balance.toFixed(2)}`;
+            document.getElementById('lending-balance').textContent = `₹${lendingBalance.toFixed(2)}`;
+            
+            // Update lending manager dashboard
+            const lendingTotalLended = document.getElementById('lending-total-lended');
+            const lendingTotalBorrowed = document.getElementById('lending-total-borrowed');
+            const lendingNetBalance = document.getElementById('lending-net-balance');
+            
+            if (lendingTotalLended) lendingTotalLended.textContent = `₹${lended.toFixed(2)}`;
+            if (lendingTotalBorrowed) lendingTotalBorrowed.textContent = `₹${borrowed.toFixed(2)}`;
+            if (lendingNetBalance) lendingNetBalance.textContent = `₹${lendingBalance.toFixed(2)}`;
             
             // Update recent transactions
             const recent = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
             let recentHtml = '<ul style="list-style: none; padding: 0;">';
             recent.forEach(t => {
-                const icon = t.type === 'income' ? '💰' : '💸';
+                const icons = {
+                    'income': '💰',
+                    'expense': '💸',
+                    'lended': '💸',
+                    'borrowed': '💰'
+                };
+                const icon = icons[t.type] || '💸';
                 recentHtml += `<li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                    ${icon} ${t.date} - ${t.description} - ₹${t.amount.toFixed(2)}
+                    ${icon} ${t.date} - ${t.description} - ₹${t.amount.toFixed(2)} (${t.type})
                 </li>`;
             });
             recentHtml += '</ul>';
@@ -1376,6 +1967,10 @@ ${unformattedLog}
             
             // Update chart
             updateCategoryChart();
+            
+            // Update lending relationships
+            updateLendingRelationships();
+            updateLendingTransactions();
         }
 
         function updateCategoryChart() {
@@ -1446,7 +2041,7 @@ ${unformattedLog}
                 <tr class="${t.type}-row">
                     <td>${t.date}</td>
                     <td>${t.description}</td>
-                    <td>${t.type}</td>
+                    <td>${t.type.charAt(0).toUpperCase() + t.type.slice(1)}</td>
                     <td>₹${t.amount.toFixed(2)}</td>
                     <td>
                         <div class="actions">
@@ -1456,6 +2051,91 @@ ${unformattedLog}
                     </td>
                 </tr>
             `).join('');
+        }
+
+        // Lending Management Functions
+        function showLendingManager() {
+            switchTab('lending-manager');
+        }
+
+        function updateLendingRelationships() {
+            const lendingDiv = document.getElementById('lending-relationships');
+            if (!lendingDiv) return;
+            
+            // Group transactions by person/description for lending relationships
+            const relationships = {};
+            
+            transactions.filter(t => t.type === 'lended' || t.type === 'borrowed').forEach(t => {
+                const person = extractPersonName(t.description);
+                if (!relationships[person]) {
+                    relationships[person] = { lended: 0, borrowed: 0 };
+                }
+                relationships[person][t.type] += t.amount;
+            });
+            
+            let html = '<div class="lending-relationships-grid" style="display: grid; gap: 15px; margin-top: 15px;">';
+            
+            Object.entries(relationships).forEach(([person, amounts]) => {
+                const netAmount = amounts.lended - amounts.borrowed;
+                const status = netAmount > 0 ? 'owes you' : netAmount < 0 ? 'you owe' : 'settled';
+                const statusColor = netAmount > 0 ? '#16a085' : netAmount < 0 ? '#e74c3c' : '#95a5a6';
+                
+                html += `
+                    <div class="relationship-card" style="background: var(--bg-card); padding: 15px; border-radius: 8px; border-left: 4px solid ${statusColor};">
+                        <h4 style="margin: 0 0 10px 0;">${person}</h4>
+                        <p style="margin: 5px 0; font-size: 14px;">Lended: ₹${amounts.lended.toFixed(2)}</p>
+                        <p style="margin: 5px 0; font-size: 14px;">Borrowed: ₹${amounts.borrowed.toFixed(2)}</p>
+                        <p style="margin: 10px 0 0 0; font-weight: bold; color: ${statusColor};">
+                            ${status === 'settled' ? '✅ All settled!' : `${status}: ₹${Math.abs(netAmount).toFixed(2)}`}
+                        </p>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            if (Object.keys(relationships).length === 0) {
+                html = '<p class="help-text">No lending relationships yet. Add some lended or borrowed transactions to see relationships here.</p>';
+            }
+            
+            lendingDiv.innerHTML = html;
+        }
+
+        function updateLendingTransactions() {
+            const tbody = document.getElementById('lending-transactions-tbody');
+            if (!tbody) return;
+            
+            const lendingTransactions = transactions.filter(t => t.type === 'lended' || t.type === 'borrowed')
+                .sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            tbody.innerHTML = lendingTransactions.map(t => `
+                <tr class="${t.type}-row">
+                    <td>${t.date}</td>
+                    <td>${t.description}</td>
+                    <td>${t.type.charAt(0).toUpperCase() + t.type.slice(1)}</td>
+                    <td>₹${t.amount.toFixed(2)}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn-small" onclick="editTransaction(${t.id})">Edit</button>
+                            <button class="btn-small danger" onclick="deleteTransaction(${t.id})">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function extractPersonName(description) {
+            // Simple extraction - take first word or until common keywords
+            const words = description.toLowerCase().split(' ');
+            const stopWords = ['to', 'from', 'for', 'money', 'loan', 'lent', 'borrowed'];
+            
+            for (let i = 0; i < words.length; i++) {
+                if (stopWords.includes(words[i])) {
+                    return words.slice(0, i).join(' ') || 'Unknown';
+                }
+            }
+            
+            return words[0] || 'Unknown';
         }
 
         function sortTransactions(field) {
