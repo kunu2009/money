@@ -1,4 +1,5 @@
 // Dynamic cache versioning based on timestamp for auto-updates
+// Force deployment: 2025-09-28T17:30:00Z - API Fix v2.2.0
 const CACHE_VERSION = '7k-money-v' + new Date().toISOString().split('T')[0]; // Daily cache updates
 const CACHE_NAME = CACHE_VERSION;
 const urlsToCache = [
