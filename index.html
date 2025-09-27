@@ -1092,6 +1092,7 @@
             <div class="header-content">
                 <h1>💰 7K Money</h1>
                 <p>Your Personal Finance Tracker</p>
+                <small style="opacity: 0.8; font-size: 0.75em;">v2.0.1 - Updated Cache System</small>
             </div>
             <div class="header-controls">
                 <button class="theme-toggle" onclick="toggleTheme()">
@@ -1204,8 +1205,15 @@
                     
                     <div class="form-group">
                         <label for="ai-api-key-mass">Gemini API Key</label>
-                        <input type="password" id="ai-api-key-mass" placeholder="Enter your Gemini API key">
-                        <p class="help-text">Free tier API key from Google AI Studio (using Gemini Flash model for efficiency)</p>
+                        <input type="password" id="ai-api-key-mass" placeholder="Enter your Gemini API key (starts with AIzaSy...)">
+                        <p class="help-text">
+                            Free tier API key from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> 
+                            (using Gemini Flash model for efficiency). 
+                            <button type="button" onclick="testMassApiKey()" style="margin-left: 10px; background: var(--sandy-brown); color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                                Test Key
+                            </button>
+                        </p>
+                        <div id="mass-api-test-result" style="margin-top: 5px; display: none; font-size: 12px;"></div>
                     </div>
                     
                     <div class="form-group">
@@ -1261,8 +1269,15 @@
                 <div id="ai-config" style="display:none;">
                     <div class="form-group">
                         <label for="api-key">Gemini API Key</label>
-                        <input type="password" id="api-key" placeholder="Enter your Gemini API key">
-                        <p class="help-text">Get your API key from Google AI Studio</p>
+                        <input type="password" id="api-key" placeholder="Enter your Gemini API key (starts with AIzaSy...)">
+                        <p class="help-text">
+                            Get your API key from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>. 
+                            Make sure the API key has permission to use Gemini models.
+                        </p>
+                        <button type="button" onclick="testApiKey()" style="margin-top: 10px; background: var(--sandy-brown); font-size: 14px; padding: 8px 16px;">
+                            🔧 Test API Key
+                        </button>
+                        <div id="api-test-result" style="margin-top: 10px; display: none;"></div>
                     </div>
                     <div class="form-group">
                         <label for="ai-query">Ask about your finances</label>
@@ -1602,15 +1617,21 @@
 
         // Mass Transaction Parser
         async function processWithAI() {
-            const apiKey = document.getElementById('ai-api-key-mass').value;
-            const unformattedLog = document.getElementById('unformatted-log').value;
+            const apiKey = document.getElementById('ai-api-key-mass').value.trim();
+            const unformattedLog = document.getElementById('unformatted-log').value.trim();
             
             if (!apiKey) {
                 alert('Please enter your Gemini API key');
                 return;
             }
             
-            if (!unformattedLog.trim()) {
+            // Validate API key format (basic check)
+            if (!apiKey.startsWith('AIzaSy') && apiKey.length < 35) {
+                alert('Invalid API key format. Please check your Gemini API key.');
+                return;
+            }
+            
+            if (!unformattedLog) {
                 alert('Please enter some unformatted finance log text');
                 return;
             }
@@ -1678,7 +1699,18 @@ ${unformattedLog}
                 });
                 
                 if (!response.ok) {
-                    throw new Error(`API Error: ${response.status} - ${response.statusText}`);
+                    const errorData = await response.json().catch(() => ({}));
+                    const errorMessage = errorData.error?.message || `HTTP ${response.status}: ${response.statusText}`;
+                    
+                    if (response.status === 400) {
+                        throw new Error(`Invalid API key or request format: ${errorMessage}`);
+                    } else if (response.status === 403) {
+                        throw new Error('API key is invalid or doesn\'t have permission. Please verify your Gemini API key.');
+                    } else if (response.status === 429) {
+                        throw new Error('Rate limit exceeded. Please try again in a few minutes.');
+                    } else {
+                        throw new Error(`API Error: ${errorMessage}`);
+                    }
                 }
                 
                 const data = await response.json();
@@ -2241,11 +2273,17 @@ ${unformattedLog}
         }
 
         async function askAI() {
-            const apiKey = document.getElementById('api-key').value;
-            const query = document.getElementById('ai-query').value;
+            const apiKey = document.getElementById('api-key').value.trim();
+            const query = document.getElementById('ai-query').value.trim();
             
             if (!apiKey) {
                 alert('Please enter your Gemini API key');
+                return;
+            }
+            
+            // Validate API key format (basic check)
+            if (!apiKey.startsWith('AIzaSy') && apiKey.length < 35) {
+                alert('Invalid API key format. Please check your Gemini API key.');
                 return;
             }
             
@@ -2284,7 +2322,7 @@ ${unformattedLog}
                     Please provide helpful, actionable advice.
                 `;
                 
-                // Call Gemini API
+                // Call Gemini API with better error handling
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: {
@@ -2295,29 +2333,145 @@ ${unformattedLog}
                             parts: [{
                                 text: prompt
                             }]
-                        }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 1024
+                        }
                     })
                 });
                 
                 if (!response.ok) {
-                    throw new Error('API request failed');
+                    const errorData = await response.json().catch(() => ({}));
+                    const errorMessage = errorData.error?.message || `HTTP ${response.status}: ${response.statusText}`;
+                    
+                    if (response.status === 400) {
+                        throw new Error(`Invalid API key or request format: ${errorMessage}`);
+                    } else if (response.status === 403) {
+                        throw new Error('API key is invalid or doesn\'t have permission. Please check your Gemini API key.');
+                    } else if (response.status === 429) {
+                        throw new Error('Rate limit exceeded. Please try again later.');
+                    } else {
+                        throw new Error(`API Error: ${errorMessage}`);
+                    }
                 }
                 
                 const data = await response.json();
+                
+                if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+                    throw new Error('Invalid response from AI. Please try again.');
+                }
+                
                 const aiResponse = data.candidates[0].content.parts[0].text;
                 
                 responseDiv.innerHTML = `<strong>AI Insights:</strong>\n\n${aiResponse}`;
             } catch (error) {
-                responseDiv.innerHTML = `<span style="color: red;">Error: ${error.message}. Please check your API key and try again.</span>`;
+                console.error('AI Assistant Error:', error);
+                responseDiv.innerHTML = `<span style="color: red;">❌ Error: ${error.message}</span>`;
             }
         }
 
-        // Enhanced Service Worker for PWA
+        // Test API Key for Mass Add
+        async function testMassApiKey() {
+            const apiKey = document.getElementById('ai-api-key-mass').value.trim();
+            const testResult = document.getElementById('mass-api-test-result');
+            
+            if (!apiKey) {
+                alert('Please enter your API key first');
+                return;
+            }
+            
+            testResult.style.display = 'block';
+            testResult.innerHTML = '🔄 Testing...';
+            
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: 'Test'
+                            }]
+                        }]
+                    })
+                });
+                
+                if (response.ok) {
+                    testResult.innerHTML = '<span style="color: green;">✅ Valid</span>';
+                    localStorage.setItem('7k_gemini_mass_key', apiKey);
+                } else {
+                    testResult.innerHTML = '<span style="color: red;">❌ Invalid</span>';
+                }
+            } catch (error) {
+                testResult.innerHTML = '<span style="color: red;">❌ Error</span>';
+            }
+        }
+
+        // API Key Testing Function
+        async function testApiKey() {
+            const apiKey = document.getElementById('api-key').value.trim();
+            const testResult = document.getElementById('api-test-result');
+            
+            if (!apiKey) {
+                alert('Please enter your API key first');
+                return;
+            }
+            
+            testResult.style.display = 'block';
+            testResult.innerHTML = '<div class="loading"></div> Testing API key...';
+            
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: 'Hello, respond with just "API key is working!"'
+                            }]
+                        }]
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.candidates && data.candidates[0]) {
+                        testResult.innerHTML = '<span style="color: green;">✅ API key is valid and working!</span>';
+                        localStorage.setItem('7k_gemini_key', apiKey);
+                    } else {
+                        testResult.innerHTML = '<span style="color: orange;">⚠️ API key works but response format unexpected.</span>';
+                    }
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    const errorMessage = errorData.error?.message || `HTTP ${response.status}`;
+                    
+                    if (response.status === 400) {
+                        testResult.innerHTML = '<span style="color: red;">❌ Invalid API key format or request.</span>';
+                    } else if (response.status === 403) {
+                        testResult.innerHTML = '<span style="color: red;">❌ API key is invalid or lacks permissions.</span>';
+                    } else {
+                        testResult.innerHTML = `<span style="color: red;">❌ Error: ${errorMessage}</span>`;
+                    }
+                }
+            } catch (error) {
+                testResult.innerHTML = `<span style="color: red;">❌ Network error: ${error.message}</span>`;
+            }
+        }
+
+        // Enhanced Service Worker for PWA with update checking
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
                     .then((registration) => {
                         console.log('SW registered: ', registration);
+                        
+                        // Check for updates every time the app loads
+                        registration.update();
                         
                         // Check for updates
                         registration.addEventListener('updatefound', () => {
@@ -2326,18 +2480,52 @@ ${unformattedLog}
                                 if (newWorker.state === 'installed') {
                                     if (navigator.serviceWorker.controller) {
                                         // New update available
-                                        if (confirm('A new version is available! Would you like to refresh?')) {
+                                        console.log('New version available, prompting user...');
+                                        if (confirm('🚀 A new version is available! Would you like to refresh to get the latest features?')) {
                                             window.location.reload();
+                                        } else {
+                                            // Show a persistent update notification
+                                            showUpdateNotification();
                                         }
                                     }
                                 }
                             });
                         });
+                        
+                        // Periodically check for updates (every 30 minutes)
+                        setInterval(() => {
+                            registration.update();
+                        }, 30 * 60 * 1000);
                     })
                     .catch((registrationError) => {
                         console.log('SW registration failed: ', registrationError);
                     });
             });
+        }
+
+        // Show update notification
+        function showUpdateNotification() {
+            const notification = document.createElement('div');
+            notification.innerHTML = `
+                <div style="position: fixed; top: 20px; right: 20px; background: var(--chathams-blue); color: white; 
+                           padding: 15px 20px; border-radius: 8px; box-shadow: var(--shadow-lg); z-index: 9999;
+                           font-size: 14px; max-width: 300px;">
+                    🚀 New version available! 
+                    <button onclick="window.location.reload()" style="background: rgba(255,255,255,0.2); 
+                           border: 1px solid rgba(255,255,255,0.3); color: white; padding: 4px 8px; 
+                           border-radius: 4px; margin-left: 10px; cursor: pointer;">Update</button>
+                    <button onclick="this.parentElement.remove()" style="background: transparent; 
+                           border: none; color: white; padding: 4px 8px; cursor: pointer; float: right;">×</button>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 10000);
         }
     </script>
 </body>
