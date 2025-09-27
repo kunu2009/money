@@ -1092,7 +1092,7 @@
             <div class="header-content">
                 <h1>💰 7K Money</h1>
                 <p>Your Personal Finance Tracker</p>
-                <small style="opacity: 0.8; font-size: 0.75em;">v2.1.0 - Universal API Fallback System</small>
+                <small style="opacity: 0.8; font-size: 0.75em;">v2.1.1 - Added API Debug Tools & Direct Calls</small>
             </div>
             <div class="header-controls">
                 <button class="theme-toggle" onclick="toggleTheme()">
@@ -1679,10 +1679,18 @@ Finance Log:
 ${unformattedLog}
                 `;
                 
-                const result = await callGeminiAPI(apiKey, prompt, 2048);
+                // Try direct call first, then fallback to universal system
+                let aiResponse;
+                try {
+                    aiResponse = await directGeminiCall(apiKey, prompt, 2048);
+                } catch (directError) {
+                    console.log('Direct call failed, trying universal fallback...', directError);
+                    const result = await callGeminiAPI(apiKey, prompt, 2048);
+                    aiResponse = result.response;
+                }
                 
                 // Extract JSON from response
-                const jsonMatch = result.response.match(/\[[\s\S]*\]/);
+                const jsonMatch = aiResponse.match(/\[[\s\S]*\]/);
                 if (!jsonMatch) {
                     throw new Error('No valid JSON found in AI response');
                 }
@@ -2289,6 +2297,41 @@ ${unformattedLog}
                 console.error('AI Assistant Error:', error);
                 responseDiv.innerHTML = `<span style="color: red;">❌ Error: ${error.message}</span>`;
             }
+        }
+
+        // Simple direct API call as backup
+        async function directGeminiCall(apiKey, prompt, maxTokens = 1024) {
+            const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=' + apiKey;
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: prompt
+                        }]
+                    }],
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: maxTokens
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(`API Error: ${errorData.error?.message || response.status}`);
+            }
+
+            const data = await response.json();
+            if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+                throw new Error('Invalid response format from API');
+            }
+
+            return data.candidates[0].content.parts[0].text;
         }
 
         // Universal Gemini API caller with fallback

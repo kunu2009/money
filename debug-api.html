@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Gemini API Debugger</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
+        .container { background: #f5f5f5; padding: 20px; border-radius: 10px; margin: 10px 0; }
+        input, button, textarea { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #ddd; }
+        button { background: #4CAF50; color: white; cursor: pointer; }
+        .result { margin: 10px 0; padding: 15px; border-radius: 5px; white-space: pre-wrap; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Complete Gemini API Debugger</h1>
+    
+    <div class="container">
+        <h2>1. Test Your API Key</h2>
+        <input type="password" id="apiKey" placeholder="Enter your Gemini API key (starts with AIzaSy...)">
+        <button onclick="testAllEndpoints()">🚀 Test All API Endpoints</button>
+        <div id="testResults"></div>
+    </div>
+
+    <div class="container">
+        <h2>2. Direct API Call Test</h2>
+        <textarea id="testPrompt" placeholder="Enter test message (or leave blank for default)">Hello! Please respond with 'API is working correctly!'</textarea>
+        <button onclick="directAPITest()">📡 Direct API Test</button>
+        <div id="directResults"></div>
+    </div>
+
+    <div class="container">
+        <h2>3. API Key Validation</h2>
+        <button onclick="validateAPIKey()">🔍 Validate API Key Format</button>
+        <div id="validationResults"></div>
+    </div>
+
+    <script>
+        async function testAllEndpoints() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const results = document.getElementById('testResults');
+            
+            if (!apiKey) {
+                results.innerHTML = '<div class="error">Please enter your API key first</div>';
+                return;
+            }
+
+            results.innerHTML = '<div class="info">Testing all endpoints... Please wait.</div>';
+
+            const endpoints = [
+                { version: 'v1beta', model: 'gemini-1.5-flash-latest' },
+                { version: 'v1beta', model: 'gemini-1.5-flash' },
+                { version: 'v1beta', model: 'gemini-1.0-pro-latest' },
+                { version: 'v1beta', model: 'gemini-1.0-pro' },
+                { version: 'v1beta', model: 'gemini-pro' },
+                { version: 'v1', model: 'gemini-1.5-flash-latest' },
+                { version: 'v1', model: 'gemini-1.5-flash' },
+                { version: 'v1', model: 'gemini-1.0-pro' },
+                { version: 'v1', model: 'gemini-pro' }
+            ];
+
+            let workingEndpoints = [];
+            let resultHTML = '';
+
+            for (const {version, model} of endpoints) {
+                try {
+                    const url = `https://generativelanguage.googleapis.com/${version}/models/${model}:generateContent?key=${apiKey}`;
+                    
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{
+                                    text: 'Hello'
+                                }]
+                            }]
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.candidates && data.candidates[0]) {
+                            workingEndpoints.push(`${version}/${model}`);
+                            resultHTML += `✅ WORKING: ${version}/${model}\\n`;
+                        } else {
+                            resultHTML += `⚠️  Response OK but no content: ${version}/${model}\\n`;
+                        }
+                    } else {
+                        const errorData = await response.json().catch(() => ({}));
+                        resultHTML += `❌ FAILED: ${version}/${model} - ${errorData.error?.message || response.status}\\n`;
+                    }
+                } catch (error) {
+                    resultHTML += `❌ ERROR: ${version}/${model} - ${error.message}\\n`;
+                }
+            }
+
+            if (workingEndpoints.length > 0) {
+                results.innerHTML = `
+                    <div class="success">
+                        <strong>✅ SUCCESS! Found ${workingEndpoints.length} working endpoint(s):</strong>\\n
+                        ${workingEndpoints.join('\\n')}\\n\\n
+                        <strong>Full Test Results:</strong>\\n${resultHTML}
+                    </div>
+                `;
+            } else {
+                results.innerHTML = `
+                    <div class="error">
+                        <strong>❌ NO WORKING ENDPOINTS FOUND</strong>\\n\\n
+                        This usually means:\\n
+                        1. API key is invalid or expired\\n
+                        2. API key doesn't have Gemini permissions\\n
+                        3. Billing not set up on Google Cloud\\n\\n
+                        <strong>Full Test Results:</strong>\\n${resultHTML}\\n\\n
+                        <strong>Next Steps:</strong>\\n
+                        1. Generate a NEW API key at https://aistudio.google.com/app/apikey\\n
+                        2. Make sure billing is enabled in Google Cloud Console\\n
+                        3. Enable the Generative AI API
+                    </div>
+                `;
+            }
+        }
+
+        async function directAPITest() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const prompt = document.getElementById('testPrompt').value.trim() || "Hello! Please respond with 'API is working correctly!'";
+            const results = document.getElementById('directResults');
+
+            if (!apiKey) {
+                results.innerHTML = '<div class="error">Please enter your API key first</div>';
+                return;
+            }
+
+            results.innerHTML = '<div class="info">Testing direct API call...</div>';
+
+            // Try the most common working endpoint
+            const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=' + apiKey;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 100
+                        }
+                    })
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Response data:', data);
+
+                    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                        const aiResponse = data.candidates[0].content.parts[0].text;
+                        results.innerHTML = `
+                            <div class="success">
+                                <strong>✅ API CALL SUCCESSFUL!</strong>\\n\\n
+                                <strong>Prompt:</strong> ${prompt}\\n\\n
+                                <strong>AI Response:</strong> ${aiResponse}\\n\\n
+                                <strong>Model:</strong> gemini-1.5-flash-latest\\n
+                                <strong>API Version:</strong> v1beta
+                            </div>
+                        `;
+                    } else {
+                        results.innerHTML = `
+                            <div class="error">
+                                <strong>❌ Invalid Response Structure</strong>\\n\\n
+                                <strong>Raw Response:</strong>\\n${JSON.stringify(data, null, 2)}
+                            </div>
+                        `;
+                    }
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    results.innerHTML = `
+                        <div class="error">
+                            <strong>❌ API Call Failed</strong>\\n\\n
+                            <strong>Status:</strong> ${response.status}\\n
+                            <strong>Error:</strong> ${errorData.error?.message || 'Unknown error'}\\n\\n
+                            <strong>Raw Error:</strong>\\n${JSON.stringify(errorData, null, 2)}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                results.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Network/Request Error</strong>\\n\\n
+                        <strong>Error:</strong> ${error.message}\\n\\n
+                        This usually indicates:\\n
+                        - Network connectivity issues\\n
+                        - CORS problems (unlikely with Google's API)\\n
+                        - Invalid API key format
+                    </div>
+                `;
+            }
+        }
+
+        function validateAPIKey() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const results = document.getElementById('validationResults');
+
+            if (!apiKey) {
+                results.innerHTML = '<div class="error">Please enter an API key to validate</div>';
+                return;
+            }
+
+            let validation = '';
+            let isValid = true;
+
+            // Check format
+            if (!apiKey.startsWith('AIzaSy')) {
+                validation += '❌ API key should start with "AIzaSy"\\n';
+                isValid = false;
+            } else {
+                validation += '✅ API key starts with correct prefix\\n';
+            }
+
+            // Check length
+            if (apiKey.length < 35) {
+                validation += '❌ API key seems too short (should be 35+ characters)\\n';
+                isValid = false;
+            } else {
+                validation += '✅ API key length looks correct\\n';
+            }
+
+            // Check for spaces or invalid characters
+            if (/\\s/.test(apiKey)) {
+                validation += '❌ API key contains spaces\\n';
+                isValid = false;
+            } else {
+                validation += '✅ No spaces in API key\\n';
+            }
+
+            // Check for common copy-paste issues
+            if (apiKey.includes('...') || apiKey.includes('***')) {
+                validation += '❌ API key appears to be truncated or masked\\n';
+                isValid = false;
+            } else {
+                validation += '✅ API key appears complete\\n';
+            }
+
+            const className = isValid ? 'success' : 'error';
+            const icon = isValid ? '✅' : '❌';
+            
+            results.innerHTML = `
+                <div class="${className}">
+                    <strong>${icon} API Key Validation Results:</strong>\\n\\n
+                    ${validation}\\n
+                    <strong>Key Length:</strong> ${apiKey.length} characters\\n\\n
+                    ${isValid ? 
+                        'Your API key format looks correct! Try the API tests above.' : 
+                        'Please get a new API key from https://aistudio.google.com/app/apikey'
+                    }
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
